@@ -75,10 +75,7 @@ export default function Popup() {
   }
 
   return (
-    <div
-      className="bg-[#0d0d0d] flex flex-col rounded-xl border border-[#222222] overflow-hidden"
-      style={{ width: 350, height: 560 }}
-    >
+    <div className="bg-[#0d0d0d] flex flex-col" style={{ width: 360, height: 500 }}>
       <Header />
 
       <div className="flex-1 overflow-y-auto py-1 space-y-1">

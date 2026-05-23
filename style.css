@@ -8,28 +8,26 @@
 }
 
 html {
-  background: #080808;
+  overflow: hidden;
+  background: #0d0d0d;
 }
 
 body {
   margin: 0;
-  padding: 5px;
+  padding: 0;
   width: 360px;
-  height: 570px;
+  height: 500px;
   overflow: hidden;
-  background: transparent;
+  background: #0d0d0d;
   color: #fff;
   font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
+/* Hide scrollbar everywhere — content still scrolls via wheel/trackpad */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #2a2a2a;
-  border-radius: 2px;
+*::-webkit-scrollbar {
+  display: none;
 }

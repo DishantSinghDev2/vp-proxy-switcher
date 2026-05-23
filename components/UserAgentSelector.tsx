@@ -47,7 +47,7 @@ export default function UserAgentSelector({ value, onChange }: Props) {
         </button>
 
         {open && (
-          <div className="border-t border-[#1e1e1e]">
+          <div className="border-t border-[#1e1e1e] max-h-[200px] overflow-y-auto">
             {USER_AGENTS.map((ua) => (
               <button
                 key={ua.label}
