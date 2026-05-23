@@ -75,10 +75,13 @@ export default function Popup() {
   }
 
   return (
-    <div className="bg-[#0d0d0d] flex flex-col" style={{ width: 360 }}>
+    <div
+      className="bg-[#0d0d0d] flex flex-col rounded-xl border border-[#222222] overflow-hidden"
+      style={{ width: 350, height: 560 }}
+    >
       <Header />
 
-      <div className="flex-1 py-1 space-y-1">
+      <div className="flex-1 overflow-y-auto py-1 space-y-1">
         <RoutingCard proxy={active} latency={result?.ok ? result.ms : undefined} />
 
         <ProxySelector
@@ -91,8 +94,6 @@ export default function Popup() {
         <Toggle label="Reload tab when proxy changes" value={reloadOnChange} onChange={handleReloadToggle} />
 
         <UserAgentSelector value={userAgent} onChange={handleUserAgent} />
-
-
       </div>
 
       <ActionButtons
