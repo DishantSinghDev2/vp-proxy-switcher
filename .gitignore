@@ -1,0 +1,8 @@
+node_modules
+.claude
+.git
+.vs_code
+
+graphify-out
+.plasmo
+build
