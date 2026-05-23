@@ -72,6 +72,31 @@ export default function Popup() {
     }
   }
 
+  const handleAddProxies = async (batch: ProxyConfig[]) => {
+    const next = [...proxies, ...batch]
+    setProxies(next)
+    await saveSettings({ proxies: next })
+    // Enrich each in background
+    batch.forEach(async (proxy) => {
+      const info = await fetchIPInfo(proxy.host)
+      if (info) {
+        const enriched: ProxyConfig = {
+          ...proxy,
+          country: info.countryCode,
+          city: info.city,
+          flag: info.flag,
+          name: proxy.name.startsWith('Imported ·')
+            ? `${proxy.type === 'residential' ? 'Residential' : proxy.type === 'datacenter' ? 'Datacenter' : 'Mobile'} · ${info.countryCode}-${info.city.slice(0, 2).toUpperCase() || info.countryCode}`
+            : proxy.name,
+        }
+        setProxies(prev => prev.map(p => p.id === proxy.id ? enriched : p))
+        const saved = await import('./lib/storage').then(m => m.loadSettings())
+        const enrichedList = saved.proxies.map((p: ProxyConfig) => p.id === proxy.id ? enriched : p)
+        await saveSettings({ proxies: enrichedList })
+      }
+    })
+  }
+
   const handleAddProxy = async (proxy: ProxyConfig) => {
     // Immediately append with placeholder flag, then enrich in background
     const next = [...proxies, proxy]
@@ -104,7 +129,14 @@ export default function Popup() {
       setCurrentIP(null)
       chrome.runtime.sendMessage({ type: 'CLEAR_PROXY' })
     }
-    await saveSettings({ proxies: next })
+    // Auto-disable rotation if fewer than 2 proxies remain
+    if (next.length < 2 && autoRotate) {
+      setAutoRotate(false)
+      await saveSettings({ proxies: next, autoRotate: false })
+      chrome.runtime.sendMessage({ type: 'SET_AUTO_ROTATE', enabled: false })
+    } else {
+      await saveSettings({ proxies: next })
+    }
   }
 
   const handleRotate = async () => {
@@ -166,6 +198,7 @@ export default function Popup() {
           active={active}
           onSelect={handleSelect}
           onAddProxy={handleAddProxy}
+          onAddProxies={handleAddProxies}
           onRemoveProxy={handleRemoveProxy}
         />
 
@@ -176,6 +209,7 @@ export default function Popup() {
           intervalSeconds={rotateInterval}
           onToggle={handleAutoRotateToggle}
           onIntervalChange={handleRotateInterval}
+          disabled={proxies.length < 2}
         />
 
         <UserAgentSelector value={userAgent} onChange={handleUserAgent} />

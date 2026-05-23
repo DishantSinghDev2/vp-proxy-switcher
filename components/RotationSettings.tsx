@@ -13,9 +13,10 @@ interface Props {
   intervalSeconds: number
   onToggle: (enabled: boolean) => void
   onIntervalChange: (seconds: number) => void
+  disabled?: boolean
 }
 
-export default function RotationSettings({ enabled, intervalSeconds, onToggle, onIntervalChange }: Props) {
+export default function RotationSettings({ enabled, intervalSeconds, onToggle, onIntervalChange, disabled }: Props) {
   const isCustom = !PRESETS.some((p) => p.value === intervalSeconds)
   const [customVal, setCustomVal] = useState(isCustom ? String(intervalSeconds) : '')
 
@@ -38,23 +39,24 @@ export default function RotationSettings({ enabled, intervalSeconds, onToggle, o
       <div className="rounded-xl border border-[#1e1e1e] bg-[#111111] overflow-hidden">
         {/* Toggle row */}
         <button
-          className="flex items-center justify-between w-full px-3.5 py-3 hover:bg-[#161616] transition-colors"
-          onClick={() => onToggle(!enabled)}
+          className={`flex items-center justify-between w-full px-3.5 py-3 transition-colors ${disabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-[#161616]'}`}
+          onClick={() => !disabled && onToggle(!enabled)}
+          disabled={disabled}
         >
           <div>
             <p className="text-[13px] text-white font-medium text-left">Auto-rotate proxy</p>
             <p className="text-[11px] text-[#4b5563] font-mono text-left">
-              {enabled ? `every ${formatInterval(intervalSeconds)}` : 'disabled'}
+              {disabled ? 'need 2+ proxies' : enabled ? `every ${formatInterval(intervalSeconds)}` : 'disabled'}
             </p>
           </div>
           {/* Toggle */}
           <div
-            className={`relative rounded-full transition-colors duration-200 shrink-0 ${enabled ? 'bg-[#22c55e]' : 'bg-[#374151]'}`}
+            className={`relative rounded-full transition-colors duration-200 shrink-0 ${enabled && !disabled ? 'bg-[#22c55e]' : 'bg-[#374151]'}`}
             style={{ width: 40, height: 22 }}
           >
             <div
               className="absolute bg-white rounded-full shadow"
-              style={{ width: 18, height: 18, top: 2, left: enabled ? 20 : 2, transition: 'left 0.2s' }}
+              style={{ width: 18, height: 18, top: 2, left: enabled && !disabled ? 20 : 2, transition: 'left 0.2s' }}
             />
           </div>
         </button>

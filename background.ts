@@ -39,16 +39,21 @@ function scheduleRotation(intervalSeconds: number) {
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name !== ALARM) return
-  const data = await chrome.storage.local.get(['proxies', 'rotateIndex', 'autoRotate'])
+  const data = await chrome.storage.local.get(['proxies', 'rotateIndex', 'autoRotate', 'reloadOnChange'])
   if (!data.autoRotate) return
   const proxies: ProxyConfig[] = data.proxies || []
-  if (proxies.length === 0) return
+  if (proxies.length < 2) return
   const next = ((data.rotateIndex ?? 0) + 1) % proxies.length
   const proxy = proxies[next]
   currentProxy = proxy
   await chrome.storage.local.set({ rotateIndex: next, activeProxy: proxy })
   await deactivateProxy()
   await activateProxy(proxy)
+  if (data.reloadOnChange) {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]?.id) chrome.tabs.reload(tabs[0].id)
+    })
+  }
 })
 
 chrome.runtime.onStartup.addListener(restoreProxy)

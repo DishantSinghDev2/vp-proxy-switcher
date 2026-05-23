@@ -33,6 +33,7 @@ interface Props {
   active: ProxyConfig | null
   onSelect: (proxy: ProxyConfig | null) => void
   onAddProxy: (proxy: ProxyConfig) => void
+  onAddProxies: (proxies: ProxyConfig[]) => void
   onRemoveProxy: (id: string) => void
 }
 
@@ -41,7 +42,7 @@ type View = 'list' | 'add' | 'import'
 const POPUP_H = 600
 const FOOTER_H = 52
 
-export default function ProxySelector({ proxies, active, onSelect, onAddProxy, onRemoveProxy }: Props) {
+export default function ProxySelector({ proxies, active, onSelect, onAddProxy, onAddProxies, onRemoveProxy }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
   const [dropPos, setDropPos] = useState({ top: 0, left: 0, width: 0, maxH: 200 })
@@ -87,18 +88,19 @@ export default function ProxySelector({ proxies, active, onSelect, onAddProxy, o
   }
 
   const handleBulkImport = () => {
-    bulkText.trim().split('\n').filter(Boolean).forEach((line, i) => {
+    const batch: ProxyConfig[] = bulkText.trim().split('\n').filter(Boolean).flatMap((line, i) => {
       const parts = line.trim().split(':')
-      if (parts.length < 2) return
-      onAddProxy({
-        id: `import-${Date.now()}-${i}`,
+      if (parts.length < 2) return []
+      return [{
+        id: `import-${Date.now()}-${i}-${Math.random().toString(36).slice(2)}`,
         name: `Imported · ${parts[0]}`,
-        country: 'US', city: '', type: 'residential',
+        country: 'US', city: '', type: 'residential' as const,
         host: parts[0], port: parseInt(parts[1]),
         username: parts[2] || undefined, password: parts[3] || undefined,
         flag: '🌐', rotating: false,
-      })
+      }]
     })
+    if (batch.length > 0) onAddProxies(batch)
     resetView()
   }
 
@@ -190,7 +192,8 @@ export default function ProxySelector({ proxies, active, onSelect, onAddProxy, o
                         <span className="text-[11px] text-[#6b7280] font-mono shrink-0">{proxy.latency}ms</span>
                       )}
                       <LatencyDot ms={proxy.latency} />
-                      {/* Delete — visible on hover */}
+                      {/* Delete — visible on hover, hidden for active proxy */}
+                      {active?.id !== proxy.id && (
                       <button
                         className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-1 w-5 h-5 flex items-center justify-center rounded text-[#6b7280] hover:text-[#ef4444] hover:bg-[#2a1a1a]"
                         onClick={e => { e.stopPropagation(); onRemoveProxy(proxy.id) }}
@@ -200,6 +203,7 @@ export default function ProxySelector({ proxies, active, onSelect, onAddProxy, o
                           <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                         </svg>
                       </button>
+                      )}
                     </div>
                   ))}
 
