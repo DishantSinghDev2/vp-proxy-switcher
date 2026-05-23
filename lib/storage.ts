@@ -6,6 +6,9 @@ const DEFAULTS: Settings = {
   proxies: DEFAULT_PROXIES,
   reloadOnChange: true,
   userAgent: 'Browser default',
+  autoRotate: false,
+  rotateInterval: 60,
+  rotateIndex: 0,
 }
 
 export async function loadSettings(): Promise<Settings> {

@@ -19,6 +19,9 @@ export interface Settings {
   proxies: ProxyConfig[]
   reloadOnChange: boolean
   userAgent: string
+  autoRotate: boolean
+  rotateInterval: number  // seconds
+  rotateIndex: number
 }
 
 export interface TestResult {

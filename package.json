@@ -37,7 +37,8 @@
       "webRequest",
       "webRequestAuthProvider",
       "tabs",
-      "activeTab"
+      "activeTab",
+      "alarms"
     ],
     "host_permissions": ["<all_urls>"],
     "action": {

@@ -3,22 +3,15 @@ import type { ProxyConfig } from './lib/types'
 
 export {}
 
+const ALARM = 'proxy-auto-rotate'
+
 let currentProxy: ProxyConfig | null = null
 
 // Inject auth credentials for proxy requests
 chrome.webRequest.onAuthRequired.addListener(
   (details, callback) => {
-    if (
-      details.isProxy &&
-      currentProxy?.username &&
-      currentProxy?.password
-    ) {
-      callback({
-        authCredentials: {
-          username: currentProxy.username,
-          password: currentProxy.password,
-        },
-      })
+    if (details.isProxy && currentProxy?.username && currentProxy?.password) {
+      callback({ authCredentials: { username: currentProxy.username, password: currentProxy.password } })
     } else {
       callback({})
     }
@@ -27,25 +20,42 @@ chrome.webRequest.onAuthRequired.addListener(
   ['asyncBlocking']
 )
 
-// Restore proxy on browser startup
-chrome.runtime.onStartup.addListener(async () => {
-  const data = await chrome.storage.local.get('activeProxy')
+async function restoreProxy() {
+  const data = await chrome.storage.local.get(['activeProxy', 'autoRotate', 'rotateInterval'])
   if (data.activeProxy) {
     currentProxy = data.activeProxy
     await activateProxy(data.activeProxy)
   }
+  if (data.autoRotate && data.rotateInterval) {
+    scheduleRotation(data.rotateInterval)
+  }
+}
+
+function scheduleRotation(intervalSeconds: number) {
+  chrome.alarms.clear(ALARM, () => {
+    chrome.alarms.create(ALARM, { periodInMinutes: intervalSeconds / 60 })
+  })
+}
+
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name !== ALARM) return
+  const data = await chrome.storage.local.get(['proxies', 'rotateIndex', 'autoRotate'])
+  if (!data.autoRotate) return
+  const proxies: ProxyConfig[] = data.proxies || []
+  if (proxies.length === 0) return
+  const next = ((data.rotateIndex ?? 0) + 1) % proxies.length
+  const proxy = proxies[next]
+  currentProxy = proxy
+  await chrome.storage.local.set({ rotateIndex: next, activeProxy: proxy })
+  await deactivateProxy()
+  await activateProxy(proxy)
 })
 
-// Restore proxy when service worker wakes
-chrome.storage.local.get('activeProxy', async (data) => {
-  if (data.activeProxy) {
-    currentProxy = data.activeProxy
-    await activateProxy(data.activeProxy)
-  }
-})
+chrome.runtime.onStartup.addListener(restoreProxy)
+chrome.storage.local.get('activeProxy', restoreProxy)
 
 chrome.runtime.onMessage.addListener(
-  (msg: { type: string; proxy?: ProxyConfig }, _sender, sendResponse) => {
+  (msg: { type: string; proxy?: ProxyConfig; enabled?: boolean; intervalSeconds?: number }, _sender, sendResponse) => {
     if (msg.type === 'SET_PROXY' && msg.proxy) {
       currentProxy = msg.proxy
       activateProxy(msg.proxy)
@@ -63,12 +73,21 @@ chrome.runtime.onMessage.addListener(
     }
 
     if (msg.type === 'ROTATE' && msg.proxy) {
-      // Re-applying the same proxy triggers the rotating pool to hand a new IP
       currentProxy = msg.proxy
       deactivateProxy()
         .then(() => activateProxy(msg.proxy!))
         .then(() => sendResponse({ ok: true }))
         .catch((e) => sendResponse({ ok: false, error: e.message }))
+      return true
+    }
+
+    if (msg.type === 'SET_AUTO_ROTATE') {
+      if (msg.enabled && msg.intervalSeconds) {
+        scheduleRotation(msg.intervalSeconds)
+      } else {
+        chrome.alarms.clear(ALARM)
+      }
+      sendResponse({ ok: true })
       return true
     }
   }

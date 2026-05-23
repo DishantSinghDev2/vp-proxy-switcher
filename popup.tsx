@@ -5,6 +5,7 @@ import ProxySelector from './components/ProxySelector'
 import Toggle from './components/Toggle'
 import UserAgentSelector from './components/UserAgentSelector'
 import ActionButtons from './components/ActionButtons'
+import RotationSettings from './components/RotationSettings'
 import type { ProxyConfig, TestResult } from './lib/types'
 import { loadSettings, saveSettings } from './lib/storage'
 import { openProxyTester } from './lib/tester'
@@ -17,6 +18,8 @@ export default function Popup() {
   const [userAgent, setUserAgent] = useState('Browser default')
   const [rotating, setRotating] = useState(false)
   const [result, setResult] = useState<TestResult | null>(null)
+  const [autoRotate, setAutoRotate] = useState(false)
+  const [rotateInterval, setRotateInterval] = useState(60)
 
   useEffect(() => {
     loadSettings().then((s) => {
@@ -24,6 +27,8 @@ export default function Popup() {
       setActive(s.activeProxy)
       setReloadOnChange(s.reloadOnChange)
       setUserAgent(s.userAgent)
+      setAutoRotate(s.autoRotate)
+      setRotateInterval(s.rotateInterval)
     })
   }, [])
 
@@ -36,7 +41,7 @@ export default function Popup() {
   const handleSelect = async (proxy: ProxyConfig | null) => {
     setActive(proxy)
     setResult(null)
-    await saveSettings({ activeProxy: proxy })
+    await saveSettings({ activeProxy: proxy, rotateIndex: 0 })
     chrome.runtime.sendMessage({ type: proxy ? 'SET_PROXY' : 'CLEAR_PROXY', proxy })
     if (reloadOnChange) reloadActiveTab()
   }
@@ -74,6 +79,20 @@ export default function Popup() {
     await saveSettings({ userAgent: label })
   }
 
+  const handleAutoRotateToggle = async (val: boolean) => {
+    setAutoRotate(val)
+    await saveSettings({ autoRotate: val })
+    chrome.runtime.sendMessage({ type: 'SET_AUTO_ROTATE', enabled: val, intervalSeconds: rotateInterval })
+  }
+
+  const handleRotateInterval = async (seconds: number) => {
+    setRotateInterval(seconds)
+    await saveSettings({ rotateInterval: seconds })
+    if (autoRotate) {
+      chrome.runtime.sendMessage({ type: 'SET_AUTO_ROTATE', enabled: true, intervalSeconds: seconds })
+    }
+  }
+
   return (
     <div className="bg-[#0d0d0d] flex flex-col" style={{ width: 360, height: 600 }}>
       <Header />
@@ -89,6 +108,13 @@ export default function Popup() {
         />
 
         <Toggle label="Reload tab when proxy changes" value={reloadOnChange} onChange={handleReloadToggle} />
+
+        <RotationSettings
+          enabled={autoRotate}
+          intervalSeconds={rotateInterval}
+          onToggle={handleAutoRotateToggle}
+          onIntervalChange={handleRotateInterval}
+        />
 
         <UserAgentSelector value={userAgent} onChange={handleUserAgent} />
       </div>

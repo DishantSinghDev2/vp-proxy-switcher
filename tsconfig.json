@@ -6,7 +6,8 @@
         "./*"
       ]
     },
-    "baseUrl": "."
+    "baseUrl": ".",
+    "types": ["chrome"]
   },
   "include": [
     ".plasmo/index.d.ts",
