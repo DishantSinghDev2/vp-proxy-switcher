@@ -32,11 +32,18 @@ const openSite = () => chrome.tabs.create({
   url: 'https://v-proxies.com?utm_source=chrome_extension&utm_medium=extension&utm_campaign=vp_proxy_switcher&utm_content=header&ref=ext'
 })
 
-export default function Header() {
+interface Props {
+  connected: boolean
+}
+
+export default function Header({ connected }: Props) {
   return (
     <div className="flex items-center justify-between px-4 py-2.5 bg-[#111111] border-b border-[#1e1e1e]">
       <button className="flex items-center gap-2 hover:opacity-80 transition-opacity" onClick={openSite}>
-        <div className="w-5 h-5 rounded-md overflow-hidden shrink-0">
+        <div
+          className="w-5 h-5 rounded-md overflow-hidden shrink-0 transition-all duration-300"
+          style={{ filter: connected ? 'none' : 'grayscale(1)', opacity: connected ? 1 : 0.35 }}
+        >
           <img src={logoUrl} alt="logo" className="w-full h-full object-cover" />
         </div>
         <span className="text-white font-semibold text-[15px] tracking-tight">v-proxies</span>

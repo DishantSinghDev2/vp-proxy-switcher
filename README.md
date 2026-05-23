@@ -34,8 +34,7 @@ Built to work seamlessly with **[v-proxies](https://v-proxies.com?utm_source=git
 - **One-click proxy switching** — switch between proxies instantly, reload the active tab automatically
 - **Bulk import** — paste a list of proxies (`host:port` or `host:port:user:pass`) and import all at once
 - **Auto-rotate** — cycle through your proxy list on a configurable interval (30s, 1m, 5m, or custom)
-- **Live IP display** — see your real external IP after each switch, powered by [ipwho.is](https://ipwho.is)
-- **Latency indicator** — color-coded dot + ms readout for each proxy
+- **Latency indicator** — color-coded dot + ms readout measured live through your active proxy
 - **Flag + geo enrichment** — automatically detects country, city, and flag for each proxy host
 - **User agent spoofing** — 20+ presets: Chrome, Firefox, Safari, Edge, mobile, and bots
 - **Proxy auth** — supports `username:password` authentication for private proxies
@@ -136,7 +135,7 @@ VP Proxy Switcher is designed to work perfectly with **[v-proxies](https://v-pro
 | Framework | [Plasmo](https://docs.plasmo.com) (Chrome MV3) |
 | UI | React + Tailwind CSS |
 | Bundler | Parcel (via Plasmo) |
-| IP/Geo API | [ipwho.is](https://ipwho.is) (free, no key) |
+| Geo API | [ipwho.is](https://ipwho.is) (proxy host enrichment, free, no key) |
 | Latency check | `https://1.1.1.1/cdn-cgi/trace` |
 
 ---

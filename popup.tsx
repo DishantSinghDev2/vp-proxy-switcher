@@ -9,7 +9,7 @@ import RotationSettings from './components/RotationSettings'
 import type { ProxyConfig, TestResult } from './lib/types'
 import { loadSettings, saveSettings } from './lib/storage'
 import { openProxyTester } from './lib/tester'
-import { fetchIPInfo, fetchCurrentIP, measureLatency } from './lib/ipInfo'
+import { fetchIPInfo, measureLatency } from './lib/ipInfo'
 import './style.css'
 
 export default function Popup() {
@@ -21,8 +21,6 @@ export default function Popup() {
   const [result, setResult] = useState<TestResult | null>(null)
   const [autoRotate, setAutoRotate] = useState(false)
   const [rotateInterval, setRotateInterval] = useState(60)
-  const [currentIP, setCurrentIP] = useState<string | null>(null)
-  const [loadingIP, setLoadingIP] = useState(false)
 
   useEffect(() => {
     loadSettings().then((s) => {
@@ -33,18 +31,14 @@ export default function Popup() {
       setAutoRotate(s.autoRotate)
       setRotateInterval(s.rotateInterval)
 
-      // If a proxy is already active on popup open, fetch live IP + latency
       if (s.activeProxy) {
-        refreshIPAndLatency(s.activeProxy, s.proxies)
+        refreshLatency(s.activeProxy, s.proxies)
       }
     })
   }, [])
 
-  const refreshIPAndLatency = async (proxy: ProxyConfig, allProxies: ProxyConfig[]) => {
-    setLoadingIP(true)
-    const [ipData, ms] = await Promise.all([fetchCurrentIP(), measureLatency()])
-    setLoadingIP(false)
-    if (ipData) setCurrentIP(ipData.ip)
+  const refreshLatency = async (proxy: ProxyConfig, allProxies: ProxyConfig[]) => {
+    const ms = await measureLatency()
     if (ms !== null) {
       const updated = allProxies.map(p => p.id === proxy.id ? { ...p, latency: ms } : p)
       setProxies(updated)
@@ -62,13 +56,11 @@ export default function Popup() {
   const handleSelect = async (proxy: ProxyConfig | null) => {
     setActive(proxy)
     setResult(null)
-    setCurrentIP(null)
     await saveSettings({ activeProxy: proxy, rotateIndex: 0 })
     chrome.runtime.sendMessage({ type: proxy ? 'SET_PROXY' : 'CLEAR_PROXY', proxy })
     if (reloadOnChange) reloadActiveTab()
     if (proxy) {
-      // Small delay to let the proxy activate before measuring
-      setTimeout(() => refreshIPAndLatency(proxy, proxies), 800)
+      setTimeout(() => refreshLatency(proxy, proxies), 800)
     }
   }
 
@@ -76,7 +68,6 @@ export default function Popup() {
     const next = [...proxies, ...batch]
     setProxies(next)
     await saveSettings({ proxies: next })
-    // Enrich each in background
     batch.forEach(async (proxy) => {
       const info = await fetchIPInfo(proxy.host)
       if (info) {
@@ -98,12 +89,10 @@ export default function Popup() {
   }
 
   const handleAddProxy = async (proxy: ProxyConfig) => {
-    // Immediately append with placeholder flag, then enrich in background
     const next = [...proxies, proxy]
     setProxies(next)
     await saveSettings({ proxies: next })
 
-    // Enrich with real country/flag/city from ipwho.is
     const info = await fetchIPInfo(proxy.host)
     if (info) {
       const enriched: ProxyConfig = {
@@ -126,10 +115,8 @@ export default function Popup() {
     setProxies(next)
     if (active?.id === id) {
       setActive(null)
-      setCurrentIP(null)
       chrome.runtime.sendMessage({ type: 'CLEAR_PROXY' })
     }
-    // Auto-disable rotation if fewer than 2 proxies remain
     if (next.length < 2 && autoRotate) {
       setAutoRotate(false)
       await saveSettings({ proxies: next, autoRotate: false })
@@ -146,7 +133,7 @@ export default function Popup() {
     try {
       await chrome.runtime.sendMessage({ type: 'ROTATE', proxy: active })
       if (reloadOnChange) reloadActiveTab()
-      setTimeout(() => refreshIPAndLatency(active, proxies), 800)
+      setTimeout(() => refreshLatency(active, proxies), 800)
     } finally {
       setRotating(false)
     }
@@ -183,14 +170,12 @@ export default function Popup() {
 
   return (
     <div className="bg-[#0d0d0d] flex flex-col" style={{ width: 360, height: 600 }}>
-      <Header />
+      <Header connected={!!active} />
 
       <div className="flex-1 py-1 space-y-1">
         <RoutingCard
           proxy={active}
           latency={result?.ok ? result.ms : undefined}
-          currentIP={currentIP}
-          loadingIP={loadingIP}
         />
 
         <ProxySelector

@@ -5,13 +5,6 @@ export interface IPInfo {
   flag: string
 }
 
-export interface CurrentIP {
-  ip: string
-  flag: string
-  country: string
-  city: string
-}
-
 /** Fetch country/city/flag for a given proxy host IP via ipwho.is (free, no key) */
 export async function fetchIPInfo(host: string): Promise<IPInfo | null> {
   try {
@@ -26,26 +19,6 @@ export async function fetchIPInfo(host: string): Promise<IPInfo | null> {
       countryCode: d.country_code || 'XX',
       city: d.city || '',
       flag: d.flag?.emoji || codeToFlag(d.country_code),
-    }
-  } catch {
-    return null
-  }
-}
-
-/** Fetch the current external IP (what sites see) — call after proxy is activated */
-export async function fetchCurrentIP(): Promise<CurrentIP | null> {
-  try {
-    const res = await fetch('https://ipwho.is/', {
-      signal: AbortSignal.timeout(6000),
-      cache: 'no-store',
-    })
-    const d = await res.json()
-    if (!d.success) return null
-    return {
-      ip: d.ip || '',
-      flag: d.flag?.emoji || codeToFlag(d.country_code),
-      country: d.country || '',
-      city: d.city || '',
     }
   } catch {
     return null

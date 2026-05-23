@@ -3,11 +3,9 @@ import type { ProxyConfig } from '../lib/types'
 interface Props {
   proxy: ProxyConfig | null
   latency?: number
-  currentIP?: string | null
-  loadingIP?: boolean
 }
 
-export default function RoutingCard({ proxy, latency, currentIP, loadingIP }: Props) {
+export default function RoutingCard({ proxy, latency }: Props) {
   const isConnected = !!proxy
   const displayLatency = latency ?? proxy?.latency
 
@@ -25,15 +23,6 @@ export default function RoutingCard({ proxy, latency, currentIP, loadingIP }: Pr
             <p className="text-white font-semibold text-[14px] leading-tight">
               {proxy ? proxy.name : 'Direct connection'}
             </p>
-            {isConnected && (
-              <p className="text-[11px] text-[#4b5563] font-mono mt-0.5">
-                {loadingIP ? (
-                  <span className="animate-pulse">fetching ip…</span>
-                ) : currentIP ? (
-                  currentIP
-                ) : null}
-              </p>
-            )}
           </div>
         </div>
         {isConnected && displayLatency !== undefined && (
