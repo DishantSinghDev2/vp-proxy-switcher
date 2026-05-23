@@ -220,65 +220,29 @@ export default function ProxySelector({ proxies, active, onSelect, onAddProxy }:
               </div>
             )}
 
-            {/* Import modal — tab switcher */}
-            {(view === 'import-single' || view === 'import-bulk') && (
+            {/* Bulk import */}
+            {view === 'import' && (
               <div className="p-3 space-y-2">
-                {/* Tabs */}
-                <div className="flex gap-1 bg-[#1a1a1a] rounded-lg p-0.5 mb-3">
+                <p className="text-[11px] text-[#4b5563]">
+                  One proxy per line: <span className="font-mono text-[#6b7280]">host:port</span> or <span className="font-mono text-[#6b7280]">host:port:user:pass</span>
+                </p>
+                <textarea
+                  className="w-full h-28 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-[12px] text-white outline-none placeholder:text-[#4b5563] font-mono resize-none focus:border-[#3a3a3a]"
+                  placeholder={"73.42.108.221:8000\n88.198.41.92:8000:user:pass"}
+                  value={bulkText}
+                  onChange={e => setBulkText(e.target.value)}
+                  autoFocus
+                />
+                <div className="flex gap-2 pt-1">
                   <button
-                    className={`flex-1 py-1.5 rounded-md text-[12px] font-semibold transition-colors ${view === 'import-single' ? 'bg-[#2a2a2a] text-white' : 'text-[#6b7280] hover:text-white'}`}
-                    onClick={() => setView('import-single')}
+                    className="flex-1 bg-[#22c55e] text-black font-semibold text-[12px] rounded-lg py-1.5 hover:bg-[#16a34a] transition-colors disabled:opacity-40"
+                    onClick={handleBulkImport}
+                    disabled={bulkCount === 0}
                   >
-                    Single
+                    {bulkCount > 0 ? `Import ${bulkCount} ${bulkCount === 1 ? 'proxy' : 'proxies'}` : 'Import'}
                   </button>
-                  <button
-                    className={`flex-1 py-1.5 rounded-md text-[12px] font-semibold transition-colors ${view === 'import-bulk' ? 'bg-[#2a2a2a] text-white' : 'text-[#6b7280] hover:text-white'}`}
-                    onClick={() => setView('import-bulk')}
-                  >
-                    Bulk
-                  </button>
+                  <button className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] text-[#9ca3af] font-semibold text-[12px] rounded-lg py-1.5" onClick={resetView}>Cancel</button>
                 </div>
-
-                {view === 'import-single' && (
-                  <div className="space-y-2">
-                    <div className="flex gap-2">
-                      <input className={inputCls} placeholder="Host / IP" value={form.host} onChange={e => setForm(f => ({ ...f, host: e.target.value }))} />
-                      <input className="w-20 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-[12px] text-white outline-none placeholder:text-[#4b5563]" placeholder="Port" value={form.port} onChange={e => setForm(f => ({ ...f, port: e.target.value }))} />
-                    </div>
-                    <div className="flex gap-2">
-                      <input className={inputCls} placeholder="Username" value={form.username} onChange={e => setForm(f => ({ ...f, username: e.target.value }))} />
-                      <input type="password" className={inputCls} placeholder="Password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} />
-                    </div>
-                    <input className={inputCls} placeholder="Name (optional)" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-                    <div className="flex gap-2 pt-1">
-                      <button className="flex-1 bg-[#22c55e] text-black font-semibold text-[12px] rounded-lg py-1.5 hover:bg-[#16a34a] transition-colors" onClick={handleAddSingle}>Add</button>
-                      <button className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] text-[#9ca3af] font-semibold text-[12px] rounded-lg py-1.5" onClick={resetView}>Cancel</button>
-                    </div>
-                  </div>
-                )}
-
-                {view === 'import-bulk' && (
-                  <div className="space-y-2">
-                    <p className="text-[11px] text-[#4b5563]">One proxy per line: <span className="font-mono text-[#6b7280]">host:port</span> or <span className="font-mono text-[#6b7280]">host:port:user:pass</span></p>
-                    <textarea
-                      className="w-full h-28 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-[12px] text-white outline-none placeholder:text-[#4b5563] font-mono resize-none focus:border-[#3a3a3a]"
-                      placeholder={"73.42.108.221:8000\n88.198.41.92:8000:user:pass"}
-                      value={bulkText}
-                      onChange={e => setBulkText(e.target.value)}
-                      autoFocus
-                    />
-                    <div className="flex gap-2 pt-1">
-                      <button
-                        className="flex-1 bg-[#22c55e] text-black font-semibold text-[12px] rounded-lg py-1.5 hover:bg-[#16a34a] transition-colors disabled:opacity-40"
-                        onClick={handleBulkImport}
-                        disabled={bulkCount === 0}
-                      >
-                        {bulkCount > 0 ? `Import ${bulkCount} ${bulkCount === 1 ? 'proxy' : 'proxies'}` : 'Import'}
-                      </button>
-                      <button className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] text-[#9ca3af] font-semibold text-[12px] rounded-lg py-1.5" onClick={resetView}>Cancel</button>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
 
