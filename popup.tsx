@@ -52,6 +52,16 @@ export default function Popup() {
     await saveSettings({ proxies: next })
   }
 
+  const handleRemoveProxy = async (id: string) => {
+    const next = proxies.filter(p => p.id !== id)
+    setProxies(next)
+    if (active?.id === id) {
+      setActive(null)
+      chrome.runtime.sendMessage({ type: 'CLEAR_PROXY' })
+    }
+    await saveSettings({ proxies: next })
+  }
+
   const handleRotate = async () => {
     if (!active) return
     setRotating(true)
@@ -97,7 +107,7 @@ export default function Popup() {
     <div className="bg-[#0d0d0d] flex flex-col" style={{ width: 360, height: 600 }}>
       <Header />
 
-      <div className="flex-1 overflow-y-auto py-1 space-y-1">
+      <div className="flex-1 py-1 space-y-1">
         <RoutingCard proxy={active} latency={result?.ok ? result.ms : undefined} />
 
         <ProxySelector
@@ -105,6 +115,7 @@ export default function Popup() {
           active={active}
           onSelect={handleSelect}
           onAddProxy={handleAddProxy}
+          onRemoveProxy={handleRemoveProxy}
         />
 
         <Toggle label="Reload tab when proxy changes" value={reloadOnChange} onChange={handleReloadToggle} />
