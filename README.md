@@ -176,4 +176,4 @@ assets/
 
 ## License
 
-MIT © [Dishant Singh](https://github.com/DishantSinghDev2)
+MIT © [v-proxies.com](https://v-proxies.com?utm_source=github&utm_medium=readme&utm_campaign=vp_proxy_switcher&ref=github)
