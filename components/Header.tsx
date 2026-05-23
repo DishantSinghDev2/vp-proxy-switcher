@@ -42,7 +42,7 @@ export default function Header({ connected }: Props) {
       <button className="flex items-center gap-2 hover:opacity-80 transition-opacity" onClick={openSite}>
         <div
           className="w-5 h-5 rounded-md overflow-hidden shrink-0 transition-all duration-300"
-          style={{ filter: connected ? 'none' : 'grayscale(1)', opacity: connected ? 1 : 0.35 }}
+          style={{ filter: connected ? 'none' : 'grayscale(1)' }}
         >
           <img src={logoUrl} alt="logo" className="w-full h-full object-cover" />
         </div>

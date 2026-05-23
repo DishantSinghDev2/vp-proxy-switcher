@@ -1,5 +1,6 @@
 import { activateProxy, deactivateProxy } from './lib/proxyManager'
 import type { ProxyConfig } from './lib/types'
+import iconUrl from 'url:./assets/icon.png'
 
 export {}
 
@@ -20,11 +21,35 @@ chrome.webRequest.onAuthRequired.addListener(
   ['asyncBlocking']
 )
 
+async function updateActionIcon(connected: boolean) {
+  try {
+    const resp = await fetch(iconUrl)
+    const blob = await resp.blob()
+    const bitmap = await createImageBitmap(blob)
+    const size = 128
+    const canvas = new OffscreenCanvas(size, size)
+    const ctx = canvas.getContext('2d')!
+    ctx.drawImage(bitmap, 0, 0, size, size)
+    const imageData = ctx.getImageData(0, 0, size, size)
+    if (!connected) {
+      const d = imageData.data
+      for (let i = 0; i < d.length; i += 4) {
+        const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]
+        d[i] = d[i + 1] = d[i + 2] = gray
+      }
+    }
+    await chrome.action.setIcon({ imageData: { 128: imageData } })
+  } catch { /* silently skip if canvas unavailable */ }
+}
+
 async function restoreProxy() {
   const data = await chrome.storage.local.get(['activeProxy', 'autoRotate', 'rotateInterval'])
   if (data.activeProxy) {
     currentProxy = data.activeProxy
     await activateProxy(data.activeProxy)
+    updateActionIcon(true)
+  } else {
+    updateActionIcon(false)
   }
   if (data.autoRotate && data.rotateInterval) {
     scheduleRotation(data.rotateInterval)
@@ -49,6 +74,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   await chrome.storage.local.set({ rotateIndex: next, activeProxy: proxy })
   await deactivateProxy()
   await activateProxy(proxy)
+  updateActionIcon(true)
   if (data.reloadOnChange) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]?.id) chrome.tabs.reload(tabs[0].id)
@@ -64,7 +90,7 @@ chrome.runtime.onMessage.addListener(
     if (msg.type === 'SET_PROXY' && msg.proxy) {
       currentProxy = msg.proxy
       activateProxy(msg.proxy)
-        .then(() => sendResponse({ ok: true }))
+        .then(() => { updateActionIcon(true); sendResponse({ ok: true }) })
         .catch((e) => sendResponse({ ok: false, error: e.message }))
       return true
     }
@@ -72,7 +98,7 @@ chrome.runtime.onMessage.addListener(
     if (msg.type === 'CLEAR_PROXY') {
       currentProxy = null
       deactivateProxy()
-        .then(() => sendResponse({ ok: true }))
+        .then(() => { updateActionIcon(false); sendResponse({ ok: true }) })
         .catch((e) => sendResponse({ ok: false, error: e.message }))
       return true
     }
@@ -81,7 +107,7 @@ chrome.runtime.onMessage.addListener(
       currentProxy = msg.proxy
       deactivateProxy()
         .then(() => activateProxy(msg.proxy!))
-        .then(() => sendResponse({ ok: true }))
+        .then(() => { updateActionIcon(true); sendResponse({ ok: true }) })
         .catch((e) => sendResponse({ ok: false, error: e.message }))
       return true
     }
