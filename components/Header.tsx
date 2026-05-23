@@ -8,38 +8,42 @@ const IconChip = () => (
 )
 
 const IconShield = () => (
-  <svg width="15" height="15" viewBox="0 0 23 23" fill="none" stroke="currentColor" strokeWidth="1.5">
+  <svg width="15" height="15" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.5">
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
   </svg>
 )
 
 const IconRefresh = () => (
-  <svg width="15" height="15" viewBox="0 0 23 23" fill="none" stroke="currentColor" strokeWidth="1.5">
+  <svg width="15" height="15" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.5">
     <path d="M23 4v6h-6" />
     <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
   </svg>
 )
 
 const IconHelp = () => (
-  <svg width="15" height="15" viewBox="0 0 23 23" fill="none" stroke="currentColor" strokeWidth="1.5">
+  <svg width="15" height="15" viewBox="0 0 26 26" fill="none" stroke="currentColor" strokeWidth="1.5">
     <circle cx="12" cy="12" r="10" />
     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
     <line x1="12" y1="17" x2="12.01" y2="17" />
   </svg>
 )
 
+const openSite = () => chrome.tabs.create({
+  url: 'https://v-proxies.com?utm_source=chrome_extension&utm_medium=extension&utm_campaign=vp_proxy_switcher&utm_content=header&ref=ext'
+})
+
 export default function Header() {
   return (
     <div className="flex items-center justify-between px-4 py-2.5 bg-[#111111] border-b border-[#1e1e1e]">
-      <div className="flex items-center gap-2">
+      <button className="flex items-center gap-2 hover:opacity-80 transition-opacity" onClick={openSite}>
         <div className="w-5 h-5 rounded-md overflow-hidden shrink-0">
           <img src={logoUrl} alt="logo" className="w-full h-full object-cover" />
         </div>
         <span className="text-white font-semibold text-[15px] tracking-tight">v-proxies</span>
         <span className="text-[10px] text-[#6b7280] border border-[#2a2a2a] rounded px-1.5 py-0.5 font-mono">
-          v1.4
+          $0.99/gb
         </span>
-      </div>
+      </button>
       <div className="flex items-center gap-3 text-[#6b7280]">
         <button className="hover:text-white transition-colors"><IconChip /></button>
         <button className="hover:text-white transition-colors"><IconShield /></button>
