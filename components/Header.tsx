@@ -1,3 +1,5 @@
+import logoUrl from "url:../assets/icon.png"
+
 const IconChip = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
     <rect x="7" y="7" width="10" height="10" rx="1" />
@@ -26,19 +28,14 @@ const IconHelp = () => (
   </svg>
 )
 
-const LogoIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M3 3l7.5 7.5M3 21l7.5-7.5M21 3l-7.5 7.5M21 21l-7.5-7.5" />
-    <rect x="9" y="9" width="6" height="6" rx="0.5" />
-  </svg>
-)
-
 export default function Header() {
   return (
     <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e1e1e]">
       <div className="flex items-center gap-2">
-        <LogoIcon />
-        <span className="text-white font-semibold text-[15px] tracking-tight">VP Proxy Switcher</span>
+        <div className="w-7 h-7 rounded-md overflow-hidden shrink-0">
+          <img src={logoUrl} alt="logo" className="w-full h-full object-cover" />
+        </div>
+        <span className="text-white font-semibold text-[15px] tracking-tight">v-proxies</span>
         <span className="text-[10px] text-[#6b7280] border border-[#2a2a2a] rounded px-1.5 py-0.5 font-mono">
           v1.4
         </span>

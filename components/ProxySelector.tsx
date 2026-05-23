@@ -14,7 +14,7 @@ const ChevronDown = ({ open }: { open: boolean }) => (
 const TypeBadge = ({ type }: { type: ProxyConfig['type'] }) => {
   const label = type === 'residential' ? 'RES' : type === 'datacenter' ? 'DC' : 'MOB'
   return (
-    <span className="text-[10px] font-mono font-semibold text-[#9ca3af] border border-[#2a2a2a] rounded px-1.5 py-0.5">
+    <span className="text-[10px] font-mono font-semibold text-[#9ca3af] border border-[#2a2a2a] rounded px-1.5 py-0.5 shrink-0">
       {label}
     </span>
   )
@@ -75,7 +75,7 @@ export default function ProxySelector({ proxies, active, onSelect, onAddProxy }:
           className="flex items-center gap-3 w-full px-3.5 py-3 text-left hover:bg-[#161616] transition-colors"
           onClick={() => setOpen((o) => !o)}
         >
-          <span className="text-lg leading-none">{active?.flag ?? '⬤'}</span>
+          <span className="text-lg leading-none shrink-0">{active?.flag ?? '⬤'}</span>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] text-white font-medium truncate">
               {active?.name ?? 'Direct connection'}
@@ -87,14 +87,14 @@ export default function ProxySelector({ proxies, active, onSelect, onAddProxy }:
             )}
           </div>
           {active && <TypeBadge type={active.type} />}
-          <span className="text-[#4b5563]"><ChevronDown open={open} /></span>
+          <span className="text-[#4b5563] shrink-0"><ChevronDown open={open} /></span>
         </button>
 
         {/* Dropdown */}
         {open && (
           <div className="border-t border-[#1e1e1e]">
             {/* Search */}
-            <div className="px-3 py-2 border-b border-[#1a1a1a]">
+            <div className="px-3.5 py-2.5 border-b border-[#1a1a1a]">
               <input
                 className="w-full bg-transparent text-[13px] text-[#9ca3af] outline-none placeholder:text-[#4b5563]"
                 placeholder="Search 84.2M IPs..."
@@ -104,21 +104,6 @@ export default function ProxySelector({ proxies, active, onSelect, onAddProxy }:
               />
             </div>
 
-            {/* Vproxies promo banner */}
-            <a
-              href="https://vproxies.app/pricing"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center justify-between px-3.5 py-2 bg-[#0f1f12] border-b border-[#1a2e1a] hover:bg-[#132518] transition-colors no-underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div>
-                <p className="text-[11px] text-[#4ade80] font-semibold">★ v-proxies Residential</p>
-                <p className="text-[10px] text-[#4b5563]">$0.99/GB · 84M+ IPs worldwide</p>
-              </div>
-              <span className="text-[11px] text-[#22c55e] font-semibold">Get →</span>
-            </a>
-
             {/* Direct connection */}
             <button
               className={`flex items-center gap-3 w-full px-3.5 py-2.5 text-left hover:bg-[#1a1a1a] transition-colors ${
@@ -126,18 +111,20 @@ export default function ProxySelector({ proxies, active, onSelect, onAddProxy }:
               }`}
               onClick={() => { onSelect(null); setOpen(false) }}
             >
-              <div className={`w-3.5 h-3.5 rounded-full border-2 shrink-0 ${!active ? 'border-[#22c55e]' : 'border-[#374151]'}`}>
-                {!active && <div className="w-full h-full rounded-full scale-50 bg-[#22c55e]" />}
+              <div className={`w-3.5 h-3.5 rounded-full border-2 shrink-0 flex items-center justify-center ${
+                !active ? 'border-[#22c55e]' : 'border-[#374151]'
+              }`}>
+                {!active && <div className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />}
               </div>
               <div className="flex-1">
                 <p className="text-[13px] text-[#d1d5db]">Direct connection</p>
                 <p className="text-[11px] text-[#4b5563]">—</p>
               </div>
-              <div className="w-2 h-2 rounded-full bg-[#374151]" />
+              <div className="w-2 h-2 rounded-full bg-[#374151] shrink-0" />
             </button>
 
             {/* Proxy list */}
-            <div className="max-h-48 overflow-y-auto">
+            <div className="max-h-[168px] overflow-y-auto">
               {filtered.map((proxy) => (
                 <button
                   key={proxy.id}
@@ -153,7 +140,7 @@ export default function ProxySelector({ proxies, active, onSelect, onAddProxy }:
                       <div className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
                     )}
                   </div>
-                  <span className="text-base leading-none">{proxy.flag}</span>
+                  <span className="text-base leading-none shrink-0">{proxy.flag}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] text-[#d1d5db] font-medium truncate">{proxy.name}</p>
                     <p className="text-[11px] text-[#4b5563] font-mono truncate">
@@ -161,7 +148,7 @@ export default function ProxySelector({ proxies, active, onSelect, onAddProxy }:
                     </p>
                   </div>
                   {proxy.latency !== undefined && (
-                    <span className="text-[11px] text-[#6b7280] font-mono">{proxy.latency}ms</span>
+                    <span className="text-[11px] text-[#6b7280] font-mono shrink-0">{proxy.latency}ms</span>
                   )}
                   <LatencyDot ms={proxy.latency} />
                 </button>
@@ -171,16 +158,52 @@ export default function ProxySelector({ proxies, active, onSelect, onAddProxy }:
             {/* Add / Import footer */}
             {showAddForm ? (
               <div className="border-t border-[#1e1e1e] p-3 space-y-2">
-                <input className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-[12px] text-white outline-none placeholder:text-[#4b5563]" placeholder="Proxy name (optional)" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+                <input
+                  className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-[12px] text-white outline-none placeholder:text-[#4b5563]"
+                  placeholder="Proxy name (optional)"
+                  value={form.name}
+                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                />
                 <div className="flex gap-2">
-                  <input className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-[12px] text-white outline-none placeholder:text-[#4b5563]" placeholder="Host / IP" value={form.host} onChange={e => setForm(f => ({ ...f, host: e.target.value }))} />
-                  <input className="w-20 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-[12px] text-white outline-none placeholder:text-[#4b5563]" placeholder="Port" value={form.port} onChange={e => setForm(f => ({ ...f, port: e.target.value }))} />
+                  <input
+                    className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-[12px] text-white outline-none placeholder:text-[#4b5563]"
+                    placeholder="Host / IP"
+                    value={form.host}
+                    onChange={e => setForm(f => ({ ...f, host: e.target.value }))}
+                  />
+                  <input
+                    className="w-20 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-[12px] text-white outline-none placeholder:text-[#4b5563]"
+                    placeholder="Port"
+                    value={form.port}
+                    onChange={e => setForm(f => ({ ...f, port: e.target.value }))}
+                  />
                 </div>
-                <input className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-[12px] text-white outline-none placeholder:text-[#4b5563]" placeholder="Username (optional)" value={form.username} onChange={e => setForm(f => ({ ...f, username: e.target.value }))} />
-                <input type="password" className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-[12px] text-white outline-none placeholder:text-[#4b5563]" placeholder="Password (optional)" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} />
+                <input
+                  className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-[12px] text-white outline-none placeholder:text-[#4b5563]"
+                  placeholder="Username (optional)"
+                  value={form.username}
+                  onChange={e => setForm(f => ({ ...f, username: e.target.value }))}
+                />
+                <input
+                  type="password"
+                  className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-1.5 text-[12px] text-white outline-none placeholder:text-[#4b5563]"
+                  placeholder="Password (optional)"
+                  value={form.password}
+                  onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+                />
                 <div className="flex gap-2">
-                  <button className="flex-1 bg-[#22c55e] text-black font-semibold text-[12px] rounded-lg py-1.5 hover:bg-[#16a34a] transition-colors" onClick={handleAdd}>Add</button>
-                  <button className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] text-[#9ca3af] font-semibold text-[12px] rounded-lg py-1.5 hover:bg-[#262626] transition-colors" onClick={() => setShowAddForm(false)}>Cancel</button>
+                  <button
+                    className="flex-1 bg-[#22c55e] text-black font-semibold text-[12px] rounded-lg py-1.5 hover:bg-[#16a34a] transition-colors"
+                    onClick={handleAdd}
+                  >
+                    Add
+                  </button>
+                  <button
+                    className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] text-[#9ca3af] font-semibold text-[12px] rounded-lg py-1.5 hover:bg-[#262626] transition-colors"
+                    onClick={() => setShowAddForm(false)}
+                  >
+                    Cancel
+                  </button>
                 </div>
               </div>
             ) : (

@@ -5,7 +5,7 @@ import ProxySelector from './components/ProxySelector'
 import Toggle from './components/Toggle'
 import UserAgentSelector from './components/UserAgentSelector'
 import ActionButtons from './components/ActionButtons'
-import type { ProxyConfig } from './lib/types'
+import type { ProxyConfig, TestResult } from './lib/types'
 import { loadSettings, saveSettings } from './lib/storage'
 import { openProxyTester } from './lib/tester'
 import './style.css'
@@ -16,6 +16,7 @@ export default function Popup() {
   const [reloadOnChange, setReloadOnChange] = useState(true)
   const [userAgent, setUserAgent] = useState('Browser default')
   const [rotating, setRotating] = useState(false)
+  const [result, setResult] = useState<TestResult | null>(null)
 
   useEffect(() => {
     loadSettings().then((s) => {
@@ -68,13 +69,13 @@ export default function Popup() {
     await saveSettings({ reloadOnChange: val })
   }
 
-  const handleUserAgent = async (label: string) => {
+  const handleUserAgent = async (label: string, _ua: string | null) => {
     setUserAgent(label)
     await saveSettings({ userAgent: label })
   }
 
   return (
-    <div className="bg-[#0d0d0d] min-h-screen flex flex-col" style={{ width: 360 }}>
+    <div className="bg-[#0d0d0d] flex flex-col" style={{ width: 360 }}>
       <Header />
 
       <div className="flex-1 py-1 space-y-1">
