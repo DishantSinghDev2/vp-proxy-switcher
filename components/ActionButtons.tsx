@@ -9,16 +9,17 @@ interface Props {
   onTest: () => void
   rotating: boolean
   testing: boolean
-  disabled: boolean
+  rotateDisabled: boolean
+  testDisabled: boolean
 }
 
-export default function ActionButtons({ onRotate, onTest, rotating, testing, disabled }: Props) {
+export default function ActionButtons({ onRotate, onTest, rotating, testing, rotateDisabled, testDisabled }: Props) {
   return (
     <div className="flex gap-2 px-3 py-2 bg-[#111111] border-t border-[#1e1e1e]">
       <button
         className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-[#1c1c1c] border border-[#2a2a2a] text-white text-[13px] font-semibold hover:bg-[#222222] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         onClick={onRotate}
-        disabled={disabled || rotating}
+        disabled={rotateDisabled || rotating}
       >
         <BoltIcon />
         {rotating ? 'Rotating…' : 'Rotate'}
@@ -26,7 +27,7 @@ export default function ActionButtons({ onRotate, onTest, rotating, testing, dis
       <button
         className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-[#4ade80] text-black text-[13px] font-semibold hover:bg-[#22c55e] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         onClick={onTest}
-        disabled={disabled || testing}
+        disabled={testDisabled || testing}
       >
         <BoltIcon />
         {testing ? 'Testing…' : 'Test connection'}

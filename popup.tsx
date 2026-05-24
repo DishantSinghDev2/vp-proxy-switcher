@@ -140,8 +140,8 @@ export default function Popup() {
   }
 
   const handleTest = () => {
-    if (!active) return
-    openProxyTester(active)
+    if (proxies.length === 0) return
+    openProxyTester(proxies)
   }
 
   const handleReloadToggle = async (val: boolean) => {
@@ -205,7 +205,8 @@ export default function Popup() {
         onTest={handleTest}
         rotating={rotating}
         testing={false}
-        disabled={!active}
+        rotateDisabled={!active}
+        testDisabled={proxies.length === 0}
       />
     </div>
   )
